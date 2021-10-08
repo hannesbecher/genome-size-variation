@@ -1,8 +1,11 @@
-setwd("~/Dropbox/manuscripts/2108_kmers_gs/data/RE1813/")
 
+setwd("../Becher2022data/perSuperClusterJoins/")
+
+# This script requires functions defined and objects computed in 01analyses.R!
+
+# read in data ####
 clJoinFiles <- dir(pattern = "*/*Counts", recursive = T)
 
-read.table(clJoinFiles[1])
 clJoins = list()
 length(clJoins)
 str(clJoins)
@@ -25,73 +28,72 @@ for(i in names(clJoins)){
     clJMats[[i]][clJoins[[i]][j, 2] + 1, clJoins[[i]][j, 3] + 1] <- clJoins[[i]][j, 1]
   }
 }
-plotMatCont(clJMats[[1]])
-plotMatCont(clJMats[[2]])
-plotMatCont(clJMats[[3]])
-plotMatCont(clJMats[[4]])
-plotMatCont(clJMats[[5]])
-plotMatCont(clJMats[[51]])
-plotMatCont(clJMats[[2]])
-plotMatCont(clJMats[[3]])
-plotMatCont(clJMats[[4]])
-plotMatCont(clJMats[[155]]) # an2
-plotMatCont(clJMats[[5]]) # vi
-plotMatCont(clJMats[[104]])
-plotMatCont(clJMats[[255]])
-plotMatCont(clJMats[[55]]) # ri1
-plotMatCont(clJMats[[205]]) # ri3
-plotMatCont(clJMats[[255]]) # ri3
-plotMatCont(clJMats[[105]]) # ro
+# plotMatCont(clJMats[[1]])
+# plotMatCont(clJMats[[2]])
+# plotMatCont(clJMats[[3]])
+# plotMatCont(clJMats[[4]])
+# plotMatCont(clJMats[[5]])
+# plotMatCont(clJMats[[51]])
+# plotMatCont(clJMats[[2]])
+# plotMatCont(clJMats[[3]])
+# plotMatCont(clJMats[[4]])
+# plotMatCont(clJMats[[155]]) # an2
+# plotMatCont(clJMats[[5]]) # vi
+# plotMatCont(clJMats[[104]])
+# plotMatCont(clJMats[[255]])
+# plotMatCont(clJMats[[55]]) # ri1
+# plotMatCont(clJMats[[205]]) # ri3
+# plotMatCont(clJMats[[255]]) # ri3
+# plotMatCont(clJMats[[105]]) # ro
+# 
+# plotMatCont(clJMats[[204]]) # ri2
+# 
+# 
+# plotMatCont(clJMats[[101]]) # Angela
+# plotMatCont(clJMats[[52]]) # sat
+# plotMatCont(clJMats[[104]]) # 45S rDNA
+# 
+# 
+# 
+# plotMatCont(clJMats[[57]])
 
-plotMatCont(clJMats[[204]]) # ri2
 
+# contribution of clusters to a sample's GS
 
-plotMatCont(clJMats[[101]]) # Angela
-plotMatCont(clJMats[[52]]) # sat
-plotMatCont(clJMats[[104]]) # 45S rDNA
-
-
-
-plotMatCont(clJMats[[57]])
-gsFromBinJoin(clJMats[[1]])
-gsFromBinJoin(clJMats[[101]])
-gsFromBinJoin(clJMats[[2]])
-gsFromBinJoin(clJMats[[3]])
-gsFromBinJoin(clJMats[[4]])
-gsFromBinJoin(clJMats[[5]])
-gsFromBinJoin(clJMats[[7]])
-gsFromBinJoin(clJMats[[57]])
-gsFromBinJoin(clJMats[[2]])
-gsFromBinJoin(clJMats[[102]])
-gsFromBinJoin(clJMats[[29]])
-log2s <- sapply(clJMats, function(x) {
-  a <- gsFromBinJoin(x)
-  log2(a[1]/a[2])
-})
+# gsFromBinJoin(clJMats[[1]])
+# gsFromBinJoin(clJMats[[101]])
+# gsFromBinJoin(clJMats[[2]])
+# gsFromBinJoin(clJMats[[3]])
+# gsFromBinJoin(clJMats[[4]])
+# gsFromBinJoin(clJMats[[5]])
+# gsFromBinJoin(clJMats[[7]])
+# gsFromBinJoin(clJMats[[57]])
+# gsFromBinJoin(clJMats[[2]])
+# gsFromBinJoin(clJMats[[102]])
+# gsFromBinJoin(clJMats[[29]])
 
 clDiffs <- sapply(clJMats, function(x) {
   a <- gsFromBinJoin(x)
   a[1]-a[2]
 })
 
-plot(log2s[1:50])
-points(log2s[51:100], col=2)
-points(log2s[101:150], col=3)
 
+# contribution to GS diff for the top 50 repeat super clusters
+plot(clDiffs[1:50], ylim=c(-75,75)) # Vi-An1
+points(clDiffs[51:100], col=2)      # Ri1-An1
+points(clDiffs[101:150], col=3)     # Ro-An1
+points(clDiffs[151:200], col=4)     # An2-An1
+points(clDiffs[201:250], col=5)     # Ri2-An1
+points(clDiffs[251:300], col=6)     # Ri3-An1
+abline(v=(1:10)*5)
 
-plot(clDiffs[1:50], ylim=c(-75,75))
-points(clDiffs[51:100], col=2)
-points(clDiffs[101:150], col=3)
-points(clDiffs[151:200], col=4)
-points(clDiffs[201:250], col=5)
-points(clDiffs[251:300], col=6)
 diffSuVi <- sum(clDiffs[1:50], na.rm = T) # Vi
 diffSuRi1 <-sum(clDiffs[51:100], na.rm = T) # Ri1
 diffSuRo <-sum(clDiffs[101:150], na.rm = T) #Ro
 diffSuAn2 <-sum(clDiffs[151:200], na.rm = T) #An2
 diffSuRi2 <-sum(clDiffs[201:250], na.rm = T) # Ri2
 diffSuRi3 <-sum(clDiffs[251:300], na.rm = T) # Ri3
-abline(v=(1:10)*5)
+
 
 clCOntribs <- sapply(clJMats, function(x) {
   a <- gsFromBinJoin(x)
@@ -103,31 +105,36 @@ clCOntribsE030 <- sapply(clJMats[1:50], function(x) {
   a <- gsFromBinJoin(x)
   a[2]
 })
+# plot(clCOntribs)
+# plot(clCOntribsE030)
 
-varCoef <- function(x) sd(x)/mean(x)
+# Which super clusters show the largest variation in their contribution to GS?
+varCoef <- function(x) sd(x)/mean(x) # coefficient of variation, can be high if difference are small in magnitude
 varCoefs <- apply(matrix(c(clCOntribsE030, clCOntribs), ncol=7), 1, varCoef)
-sds <- apply(matrix(c(clCOntribsE030, clCOntribs), ncol=7), 1, sd)
+sds <- apply(matrix(c(clCOntribsE030, clCOntribs), ncol=7), 1, sd) # standard dev
 plot(varCoefs)
 abline(v=(1:10)*5)
 plot(sds)
 abline(v=(1:10)*5)
 
-varCoefs[order(varCoefs, decreasing = T)[1:3]]
-names(clCOntribsE030)[order(varCoefs, decreasing = T)[1:3]]
-names(clCOntribsE030)[order(sds, decreasing = T)[1:3]]
 plot(apply(sapply((0:5) * 50, function(x) (clDiffs[(1:50) + x])), 1, sd))
 suSd <- apply(sapply((0:5) * 50, function(x) (clDiffs[(1:50) + x])), 1, sd)
 suSd[order(suSd, decreasing = T)[1:3]]
 
 
-# difference between size difference and difference in contibutoin of first 50 super clusters
+# difference between size difference and difference in contibution of first 50 super clusters
+cumsumDiff <- function(jm){
+  -sum(jm[,4] * bin2lin(jm[,1]))/1000000
+}
+
+# requires object compDFs from 01analyses.R
 gsDiffsCumsum <- sapply(c("E031", "E032", "E040", "E065", "E068", "E073"), function(x) cumsumDiff(compDfs[[x]]))
 c(diffSuVi, diffSuRi1, diffSuRo, diffSuAn2, diffSuRi2, diffSuRi3) / -gsDiffsCumsum
 
 
 
 
-# oom for super clusters ####
+# contribution of super cluster to GS in copy number range ####
 compDfs <- lapply(jMats, specComp)
 
 contByOom(specComp(clJMats[[101]]))
@@ -140,24 +147,6 @@ diffsByOom(specComp(clJMats[[102]]))
 
 contByOom(specComp(clJMats[[104]]))
 diffsByOom(specComp(clJMats[[104]]))
-
-#
-# numsE030 <- {
-#   dff <- compDfs[[1]]
-#   dff[,2] <- dff[,3]
-#   nms <- c(0, 10, 100, 1000, 10000, 100000, 1000000, 10000000)
-#   br <- lin2bin(c(0.47, 10, 100, 1000, 10000, 100000, 1000000, 10000000))
-#   sapply(1:(length(br)-1), function(x){
-#     #print(x)
-#     a <- dff[(dff[,1] > br[x]) & (dff[,1] <= br[x+1]), ]
-#
-#     b <- sum(bin2lin(a[,1]) * a[,2])/1000000
-#     names(b) <- paste0(nms[x],"-", nms[x+1])
-#     b
-#   })
-# }
-# contPerOom <- t(sapply(c("E031", "E032", "E040", "E065", "E068", "E073"), function(x) contByOom(compDfs[[x]])))
-# contPerOom <- rbind(numsE030, contPerOom)
 
 contOomSu <- function(su){
   a <- sapply(c(0:5)*50 + su, function(x) contByOom(specComp(clJMats[[x]])))
