@@ -1,7 +1,7 @@
 # Prepare ####
 # download and install Tetmer:
-# https://github.com/hannesbecher/shiny-k-mers/releases/download/v2.0.0-beta/Tetmer_2.0.0.tar.gz
-# install via: install.packages("path/to/Tetmer_2.0.0.tar.gz", repo=NULL)
+# download.file("https://github.com/hannesbecher/shiny-k-mers/releases/download/v2.0.0-beta/Tetmer_2.0.0.tar.gz", "~/Tetmer_2.0.0.tar.gz")
+# install.packages("~/Tetmer_2.0.0.tar.gz", repo=NULL)
 
 # This file uses the lab-internal E-number notation.
 # The corresponding names in Becher et al. 2022 are
@@ -585,3 +585,26 @@ legend("left",
 )
 #dev.off()
 
+# spectrum explanation ####
+#par(mfrow=c(3,1))
+#par(mfrow=c(1,1))
+names(spectra)
+spectra[["E040"]]
+#pdf("Expl01.pdf", width=6, height=4)
+plot(spectra[["E040"]], xlim=c(0,200), ylim = c(0, 4000000))
+#dev.off()
+
+#pdf("Expl02.pdf", width=6, height=4)
+plot(spectra[["E040"]], log="xy", xlim=c(30, 10000000), type="l")
+xtickLabsRo <- c(1, 2, 4, 10, 100, 1000)
+xticksRo <- xtickLabsRo * 67.4
+axis(1, at = xticksRo, labels = xtickLabsRo, col = "grey")
+abline(v = xticksRo, col = "grey", lty=2)
+abline(v=200*67.4)
+#dev.off()
+
+#pdf("Expl03.pdf", width=6, height=4)
+plot(colSums(jMats[["E040"]])[2:150], log="y")
+axis(1, at = lin2bin(xtickLabsRo), labels = xtickLabsRo, col = "grey")
+abline(v = lin2bin(xtickLabsRo), col = "grey", lty=2)
+#dev.off()
