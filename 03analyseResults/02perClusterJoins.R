@@ -49,9 +49,26 @@ for(i in names(clJoins)){
 # plotMatCont(clJMats[[204]]) # ri2
 # 
 # 
-# plotMatCont(clJMats[[101]]) # Angela
-# plotMatCont(clJMats[[52]]) # sat
-# plotMatCont(clJMats[[104]]) # 45S rDNA
+#pdf("MatPlotAngela.pdf", width=5, height=6)
+plotMatCont(clJMats[[101]], main="Angela", ylab="Copy number bins Ro (291 Mb/An1 210Mbp)") # Angela Ro
+#dev.off()
+
+#pdf("MatPlotSat.pdf", width=5, height=6)
+plotMatCont(clJMats[[52]], main="145 bp sat", ylab="Copy number bins Vi (42 Mb/An1 36Mbp)") # sat Vi
+#dev.off()
+
+#pdf("MatPlot45S.pdf", width=5, height=6)
+plotMatCont(clJMats[[104]], main="45S rDNA", ylab="Copy number bins Ro (74 Mb/An1 34 Mbp)") # 45S rDNA Ro
+#dev.off()
+
+#pdf("MatPlotWholeRo.pdf", width=5, height=6)
+plotMatCont(jMats[["E040"]], main="Whole genome", ylab="Copy number bins Ro (1231 Mb/An1 1002 Mbp)")
+#dev.off()
+
+gsFromBinJoin(clJMats[[101]]) # Angela Ro
+gsFromBinJoin(clJMats[[52]]) # sat Vi
+gsFromBinJoin(clJMats[[104]]) # 45S rDNA Ro
+gsFromBinJoin(jMats[["E040"]])
 # 
 # 
 # 
