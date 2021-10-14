@@ -69,7 +69,10 @@ gsE065a <- gsFromSpectrum(spectra[["E065"]], 28.5)
 gsE068a <- gsFromSpectrum(spectra[["E068"]], 25.5)
 gsE073a <- gsFromSpectrum(spectra[["E073"]], 20.8)
 
-
+# difference matrix
+gsVals <- c(An1=gsE030a, An2=gsE065a, Ri1=gsE032a, Ri2=gsE068a, Ri3=gsE073a, Ro=gsE040a, Vi=gsE031a)
+gsDists <- dist(gsVals)
+gsDists # for table 2
 
 # compute size ratios between clean and unfiltered spectra
 gsFromSpectrum(spectraO[["E030"]], 54)/gsFromSpectrum(spectra[["E030"]], 54)
