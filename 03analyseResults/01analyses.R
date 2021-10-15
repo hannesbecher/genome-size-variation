@@ -409,27 +409,42 @@ legend("topleft",
 gsDat <- data.frame(spec=c("An","An","Vi","Ro","Ri","Ri","Ri"),
                     genSiz=c(999.98, 989.23, 1055.93, 1227.92, 1126.64, 1096.44, 1104.84)
 )
-summary(lm(genSiz ~ spec, gsDat))
-var(gsDat[,2])
-anova(lm(genSiz ~ spec, gsDat))
+coef(summary(lm(genSiz ~ spec, gsDat)))
+coef(aov(lm(genSiz ~ spec, gsDat)))
+summary(anova(lm(genSiz ~ spec, gsDat)))
 a <- anova(lm(genSiz ~ spec, gsDat))
 str(a)
-a$`Pr(>F)`
+var(gsDat[,2])
+aov(genSiz ~ spec, gsDat)
+coef(aov(lm(genSiz ~ spec, gsDat)))
 
+a <- anova(lm(genSiz ~ spec, gsDat[]))
+str(a)
+a$`Pr(>F)`
+a$`Sum Sq`[1]/sum(a$`Sum Sq`)
 
 # This p-value is based on very few samples. How often do we get low p-values
 # is we permute the data?
 set.seed(123345)
 resample <- function(dff, n=999){
-  sapply(1:n, function(x){
+  lapply(1:n, function(x){
     a <- dff
   a[,2] <- dff[sample(1:7),2]
-  anova(lm(genSiz ~ spec, a))$`Pr(>F)`[1]
+  b <- anova(lm(genSiz ~ spec, a))
+  return(c(p=b$`Pr(>F)`[1], expl=b$`Sum Sq`[1]/sum(b$`Sum Sq`)))
   })
 }
-pvals <- resample(gsDat)
-hist(pvals)
-quantile(pvals, 0.05)
+resampleResults<- do.call(rbind, resample(gsDat))
+# head(resampleResults)
+# str(resampleResults)
+# hist(resampleResults[,1])
+# hist(resampleResults[,2])
+# plot(p ~ expl, resampleResults)
+# p vals
+quantile(resampleResults[,1], c(0.025, 0.05, 0.95, 0.975))
+# var explained
+quantile(resampleResults[,2], c(0.025, 0.05, 0.95, 0.975))
+
 # Rarely.
 
 # synthetic data ####
