@@ -21,9 +21,11 @@ library(Tetmer)
 setwd("../Becher2022data/")
 
 samples <- dir(pattern = "PlMt.hist") # plastid/mito seqs removed
+samplesNoPl <- dir(pattern = "noPl.hist") # nothing removed
 samplesO <- dir(pattern = "full.hist") # nothing removed
 spectra = list()
 spectraO = list()
+spectraNoPl = list()
 
 # Loop over names and use the Tetmer function "read.spectrum" to read the k-mer spectra
 # Try out ?read.spectrum ! You can specify a sample name and a k-mer size
@@ -33,6 +35,10 @@ for(i in samples){
 
 for(i in samplesO){
   spectraO[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21)
+}
+
+for(i in samplesNoPl){
+  spectraNoPl[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21)
 }
 
 
@@ -446,6 +452,28 @@ quantile(resampleResults[,1], c(0.025, 0.05, 0.95, 0.975))
 quantile(resampleResults[,2], c(0.025, 0.05, 0.95, 0.975))
 
 # Rarely.
+
+# Organelle contributions ####
+# another plotting function
+plot3spectra <- function(nam, ...){
+  png(paste0(nam, ".png"), width = 1000, height=800, res = 200)
+  plot(spectraO[[nam]]@data, log="xy", col=2, ...)
+  points(spectraNoPl[[nam]]@data, col=3)
+  points(spectra[[nam]]@data, col=1)
+  legend("topright",
+         col=c(1, 2, 3),
+         pch=1,
+         legend=c("Clean spectrum", "Plastid peaks", "Mito peak"))
+  dev.off()
+}
+# plot3spectra("E030", main="An1", xlab="Multiplicity", ylab="Count")
+# plot3spectra("E031", main="Vi", xlab="Multiplicity", ylab="Count")
+# plot3spectra("E032", main="Ri1", xlab="Multiplicity", ylab="Count")
+# plot3spectra("E040", main="Ro", xlab="Multiplicity", ylab="Count")
+# plot3spectra("E065", main="An2", xlab="Multiplicity", ylab="Count")
+# plot3spectra("E068", main="Ri2", xlab="Multiplicity", ylab="Count")
+# plot3spectra("E073", main="Ri3", xlab="Multiplicity", ylab="Count")
+
 
 # synthetic data ####
 # For schematic figure 1
