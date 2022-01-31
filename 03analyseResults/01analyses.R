@@ -1,7 +1,7 @@
 # Prepare ####
 # download and install Tetmer:
-# download.file("https://github.com/hannesbecher/shiny-k-mers/releases/download/v2.0.0-beta/Tetmer_2.0.0.tar.gz", "~/Tetmer_2.0.0.tar.gz")
-# install.packages("~/Tetmer_2.0.0.tar.gz", repo=NULL)
+# download.file("https://github.com/hannesbecher/shiny-k-mers/releases/download/v2.2.1/Tetmer_2.2.1.tar.gz", "~/Tetmer_2.2.1.tar.gz")
+# install.packages("~/Tetmer_2.2.1.tar.gz", repo=NULL)
 
 # This file uses the lab-internal E-number notation.
 # The corresponding names in Becher et al. 2022 are
@@ -21,19 +21,27 @@ library(Tetmer)
 setwd("../Becher2022data/")
 
 samples <- dir(pattern = "PlMt.hist") # plastid/mito seqs removed
+samplesNP <- dir(pattern = "noPl.hist") # plastid/mito seqs removed
 samplesO <- dir(pattern = "full.hist") # nothing removed
 spectra = list()
+spectraNP = list()
 spectraO = list()
 
+#?read.spectrum
 # Loop over names and use the Tetmer function "read.spectrum" to read the k-mer spectra
 # Try out ?read.spectrum ! You can specify a sample name and a k-mer size
 for(i in samples){
-  spectra[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21)
+  spectra[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21, cropAt = 500000000, no0=T)
 }
 
 for(i in samplesO){
-  spectraO[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21)
+  spectraO[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21, cropAt = 500000000, no0=T)
 }
+
+for(i in samplesNP){
+  spectraNP[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21, cropAt = 500000000, no0=T)
+}
+
 
 
 names(spectra)
@@ -109,7 +117,7 @@ for(i in fJoins){
 }
 #head(joins[["E031"]])
 
-# loop ofer imported joins and convert to joint binned spectra (matrices)
+# loop over imported joins and convert to joint binned spectra (matrices)
 jMats <- list()
 for(i in names(joins)){
   jMats[[i]] <- matrix(0, nrow=max(joins[[i]][,2]) + 1, ncol=max(joins[[i]][,3]) + 1)
@@ -202,7 +210,7 @@ gsE073b <- gsFromBinJoin(jMats[["E073"]])[1]
 plot(c(gsE030a, gsE031a, gsE032a, gsE040a, gsE065a, gsE068a, gsE073a),
      c(gsE030b, gsE031b, gsE032b, gsE040b, gsE065b, gsE068b, gsE073b),
      xlab="Un-binned conventional spectra",
-     ylab="Computed fro binned joint spectra"
+     ylab="Computed from binned joint spectra"
      )
 
 text(c(gsE030a, gsE031a, gsE032a, gsE040a, gsE065a, gsE068a, gsE073a),
@@ -218,6 +226,24 @@ summary(lm(c(gsE030a, gsE031a, gsE032a, gsE040a, gsE065a, gsE068a, gsE073a)~
 # Difference to ref individual (E030, An1)
 gsDiffs <- gsE030a - c(gsE031a, gsE032a, gsE040a, gsE065a, gsE068a, gsE073a)
 gsDiffsB <- gsE030b - c(gsE031b, gsE032b, gsE040b, gsE065b, gsE068b, gsE073b)
+
+# Organelle removal ####
+
+# This use the plot function for spectrum objects (plot.spectrum) as defined in
+#  the Tetmer package. 
+
+# for(i in names(spectra)){
+#   print(i)
+#   png(i)
+#   plot(spectraO[[i]], log="xy", col=2) # before removal
+#   points(spectraNP[[i]]@data, col = 3) # no plastid
+#   points(spectra[[i]]@data) # no plastid no mito
+#   legend("topright", fill=c(1, 2, 3), legend = c("Cleaned", "Plastid", "Mito"))
+#   dev.off()
+# }
+
+
+
 # comparing binned spectra starting from bin joins ####
 
 #  function to produce a k-mer difference data frame from a matrix
