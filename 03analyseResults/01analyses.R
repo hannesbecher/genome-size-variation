@@ -23,9 +23,11 @@ setwd("../Becher2022data/")
 samples <- dir(pattern = "PlMt.hist") # plastid/mito seqs removed
 samplesNP <- dir(pattern = "noPl.hist") # plastid/mito seqs removed
 samplesO <- dir(pattern = "full.hist") # nothing removed
+
 spectra = list()
 spectraNP = list()
 spectraO = list()
+spectraNoPl = list()
 
 #?read.spectrum
 # Loop over names and use the Tetmer function "read.spectrum" to read the k-mer spectra
@@ -37,11 +39,9 @@ for(i in samples){
 for(i in samplesO){
   spectraO[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21, cropAt = 500000000, no0=T)
 }
-
 for(i in samplesNP){
   spectraNP[[substr(i,1,4)]] <- read.spectrum(i, substr(i,1,4), 21, cropAt = 500000000, no0=T)
 }
-
 
 
 names(spectra)
@@ -77,7 +77,10 @@ gsE065a <- gsFromSpectrum(spectra[["E065"]], 28.5)
 gsE068a <- gsFromSpectrum(spectra[["E068"]], 25.5)
 gsE073a <- gsFromSpectrum(spectra[["E073"]], 20.8)
 
-
+# difference matrix
+gsVals <- c(An1=gsE030a, An2=gsE065a, Ri1=gsE032a, Ri2=gsE068a, Ri3=gsE073a, Ro=gsE040a, Vi=gsE031a)
+gsDists <- dist(gsVals)
+gsDists # for table 2
 
 # compute size ratios between clean and unfiltered spectra
 gsFromSpectrum(spectraO[["E030"]], 54)/gsFromSpectrum(spectra[["E030"]], 54)
@@ -232,15 +235,15 @@ gsDiffsB <- gsE030b - c(gsE031b, gsE032b, gsE040b, gsE065b, gsE068b, gsE073b)
 # This use the plot function for spectrum objects (plot.spectrum) as defined in
 #  the Tetmer package. 
 
-# for(i in names(spectra)){
-#   print(i)
-#   png(i)
-#   plot(spectraO[[i]], log="xy", col=2) # before removal
-#   points(spectraNP[[i]]@data, col = 3) # no plastid
-#   points(spectra[[i]]@data) # no plastid no mito
-#   legend("topright", fill=c(1, 2, 3), legend = c("Cleaned", "Plastid", "Mito"))
-#   dev.off()
-# }
+for(i in names(spectra)){
+  print(i)
+  png(paste0(i, ".png"))
+  plot(spectraO[[i]], log="xy", col=2) # before removal
+  points(spectraNP[[i]]@data, col = 3) # no plastid
+  points(spectra[[i]]@data) # no plastid no mito
+  legend("topright", fill=c(1, 2, 3), legend = c("Cleaned", "Plastid", "Mito"))
+  dev.off()
+}
 
 
 
@@ -432,28 +435,44 @@ legend("topleft",
 gsDat <- data.frame(spec=c("An","An","Vi","Ro","Ri","Ri","Ri"),
                     genSiz=c(999.98, 989.23, 1055.93, 1227.92, 1126.64, 1096.44, 1104.84)
 )
-summary(lm(genSiz ~ spec, gsDat))
-var(gsDat[,2])
-anova(lm(genSiz ~ spec, gsDat))
+coef(summary(lm(genSiz ~ spec, gsDat)))
+coef(aov(lm(genSiz ~ spec, gsDat)))
+summary(anova(lm(genSiz ~ spec, gsDat)))
 a <- anova(lm(genSiz ~ spec, gsDat))
 str(a)
-a$`Pr(>F)`
+var(gsDat[,2])
+aov(genSiz ~ spec, gsDat)
+coef(aov(lm(genSiz ~ spec, gsDat)))
 
+a <- anova(lm(genSiz ~ spec, gsDat[]))
+str(a)
+a$`Pr(>F)`
+a$`Sum Sq`[1]/sum(a$`Sum Sq`)
 
 # This p-value is based on very few samples. How often do we get low p-values
 # is we permute the data?
 set.seed(123345)
 resample <- function(dff, n=999){
-  sapply(1:n, function(x){
+  lapply(1:n, function(x){
     a <- dff
   a[,2] <- dff[sample(1:7),2]
-  anova(lm(genSiz ~ spec, a))$`Pr(>F)`[1]
+  b <- anova(lm(genSiz ~ spec, a))
+  return(c(p=b$`Pr(>F)`[1], expl=b$`Sum Sq`[1]/sum(b$`Sum Sq`)))
   })
 }
-pvals <- resample(gsDat)
-hist(pvals)
-quantile(pvals, 0.05)
+resampleResults<- do.call(rbind, resample(gsDat))
+# head(resampleResults)
+# str(resampleResults)
+# hist(resampleResults[,1])
+# hist(resampleResults[,2])
+# plot(p ~ expl, resampleResults)
+# p vals
+quantile(resampleResults[,1], c(0.025, 0.05, 0.95, 0.975))
+# var explained
+quantile(resampleResults[,2], c(0.025, 0.05, 0.95, 0.975))
+
 # Rarely.
+
 
 # synthetic data ####
 # For schematic figure 1
